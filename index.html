@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Compliance — Обучающий квиз</title>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/dashboard.css" />
+</head>
+<body>
+  <header class="ts-header">
+    <div class="ts-header__inner">
+      <div class="ts-header__left">
+        <div class="ts-logo-box">
+          <span class="ts-logo-icon">TS</span>
+        </div>
+        <div class="ts-header__titles">
+          <div class="ts-header__title">Compliance Hub</div>
+          <div class="ts-header__subtitle">Обучающая платформа для специалистов комплаенса</div>
+        </div>
+      </div>
+    <div class="ts-header__right">
+      <button class="ts-btn ts-btn--ghost" id="admin-dashboard-btn">
+        ⚙ Админ-панель
+      </button>
+      <button class="ts-btn ts-btn--ghost ts-theme-toggle theme-toggle-btn" id="theme-toggle-btn" type="button" aria-label="Переключить тему">
+        🌙
+      </button>
+    </div>
+    </div>
+  </header>
+
+  <main class="ts-main">
+    <section class="ts-hero">
+      <div class="ts-hero__grid">
+        <div class="ts-hero__cta">
+          <p class="ts-eyebrow">Compliance Hub • Практика</p>
+          <h1>Полный тест по проверке кампаний</h1>
+          <p class="ts-hero__lead">
+            Получите быстрый срез знаний по вертикалям, PBW, CSAM и подозрительным аккаунтам. Тест включает вопросы из всех модулей.
+          </p>
+          <div class="ts-hero__actions">
+            <button class="ts-btn ts-btn--primary ts-btn--xl" id="full-test-btn">
+              Пройти общий тест
+            </button>
+            <div class="ts-hero__hint">≈ 15–20 минут, 20 вопросов, детальные разборы.</div>
+          </div>
+          <div class="ts-hero__stats">
+            <div>
+              <div class="ts-hero__stats-number">12</div>
+              <div class="ts-hero__stats-label">тем покрыто</div>
+            </div>
+            <div>
+              <div class="ts-hero__stats-number">100+</div>
+              <div class="ts-hero__stats-label">вопросов в базе</div>
+            </div>
+            <div>
+              <div class="ts-hero__stats-number">80%</div>
+              <div class="ts-hero__stats-label">проходной балл</div>
+            </div>
+          </div>
+        </div>
+        <div class="ts-hero__panel">
+          <h3>Что внутри общего теста</h3>
+          <ul>
+            <li>Вертикали и флаги рекламных кампаний.</li>
+            <li>CSAM и другие чувствительные креативы.</li>
+            <li>PBW, жалобы паблишеров и защита площадок.</li>
+            <li>Китайские рекламодатели и подозрительные аккаунты.</li>
+          </ul>
+          <p>После прохождения можно перейти к отдельным темам ниже и закрыть пробелы.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="categories" class="ts-section">
+      <div class="ts-section__header">
+        <div>
+          <h2>Выберите конкретную тему</h2>
+          <p class="ts-section__subtitle">Прокачайте отдельные компетенции комплаенса — вертикали, креативы, PBW, китайские рекламодатели.</p>
+        </div>
+        <div class="ts-section__filters">
+          <label for="category-filter" class="visually-hidden">Фильтр по категории</label>
+          <select id="category-filter" class="ts-filter-select">
+            <option value="">Все категории</option>
+          </select>
+          <span class="ts-filter-count" id="cards-filter-count">0</span>
+          <button class="ts-btn ts-btn--ghost ts-filter-reset" type="button" id="reset-filters-btn" disabled>Сбросить</button>
+        </div>
+      </div>
+      <div class="ts-cards-grid" id="category-cards"></div>
+      <p id="cards-empty-state" class="ts-empty-state hidden">По выбранному фильтру ничего не найдено.</p>
+    </section>
+
+    <section class="ts-section ts-section--muted">
+      <h2>О платформе</h2>
+      <p class="ts-about-text">
+        Эта платформа создана для обучения сотрудников комплаенса. Вопросы основаны на внутренней
+        документации и реальных кейсах проверки рекламных кампаний. После каждого ответа вы получите детальное объяснение с
+        ссылками на соответствующие разделы регламентов. Полная документация доступна во внутреннем Confluence.
+      </p>
+  </section>
+  </main>
+
+  <script src="js/responsive.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
