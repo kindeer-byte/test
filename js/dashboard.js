@@ -13,6 +13,13 @@ const MODULE_CARD_META = {
     category: "Чувствительный контент",
     order: 20
   },
+  psych_check: {
+    code: "PSY",
+    summary: "Психологический скрининг «12 точек» для модераторов 18+: анонимно проверяет выгорание и десенсибилизацию.",
+    category: "Самочувствие",
+    order: 15,
+    accent: true
+  },
   sites_pwb: {
     code: "3.x",
     summary: "PBW и sensitive сайты: forbidden практики (forced push, deceptive UI) и защита паблишеров.",
@@ -110,6 +117,27 @@ document.addEventListener("DOMContentLoaded", () => {
     ThemeManager.bindThemeToggle();
   }
 
+  const heroTabs = Array.from(document.querySelectorAll("[data-hero-tab]"));
+  const heroPanes = Array.from(document.querySelectorAll("[data-hero-pane]"));
+
+  function activateHeroTab(target) {
+    heroTabs.forEach((tab) => {
+      tab.classList.toggle("is-active", tab.dataset.heroTab === target);
+    });
+    heroPanes.forEach((pane) => {
+      pane.classList.toggle("hidden", pane.dataset.heroPane !== target);
+    });
+  }
+
+  if (heroTabs.length) {
+    const defaultTab =
+      heroTabs.find((tab) => tab.classList.contains("is-active")) || heroTabs[0];
+    activateHeroTab(defaultTab.dataset.heroTab);
+    heroTabs.forEach((tab) => {
+      tab.addEventListener("click", () => activateHeroTab(tab.dataset.heroTab));
+    });
+  }
+
   const quizDataModules = window.QUIZ_DATA && window.QUIZ_DATA.modules;
   const modules = Array.isArray(quizDataModules) ? quizDataModules.slice() : [];
   const cardsContainer = document.getElementById("category-cards");
@@ -146,6 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (fullTestBtn) {
     fullTestBtn.addEventListener("click", () => {
       goToModule("overall_quiz");
+    });
+  }
+
+  const psychTestBtn = document.getElementById("psych-test-btn");
+  if (psychTestBtn) {
+    psychTestBtn.addEventListener("click", () => {
+      goToModule("psych_check");
     });
   }
 

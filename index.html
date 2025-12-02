@@ -34,41 +34,92 @@
     <section class="ts-hero">
       <div class="ts-hero__grid">
         <div class="ts-hero__cta">
-          <p class="ts-eyebrow">Compliance Hub • Практика</p>
-          <h1>Полный тест по проверке кампаний</h1>
-          <p class="ts-hero__lead">
-            Получите быстрый срез знаний по вертикалям, PBW, CSAM и подозрительным аккаунтам. Тест включает вопросы из всех модулей.
-          </p>
-          <div class="ts-hero__actions">
-            <button class="ts-btn ts-btn--primary ts-btn--xl" id="full-test-btn">
-              Пройти общий тест
+          <div class="ts-hero__tabs">
+            <button type="button" class="ts-hero__tab is-active" data-hero-tab="campaign">
+              Полный тест по кампаниям
             </button>
-            <div class="ts-hero__hint">≈ 15–20 минут, 20 вопросов, детальные разборы.</div>
+            <button type="button" class="ts-hero__tab" data-hero-tab="psych">
+              Психологическое состояние
+            </button>
           </div>
-          <div class="ts-hero__stats">
-            <div>
-              <div class="ts-hero__stats-number">12</div>
-              <div class="ts-hero__stats-label">тем покрыто</div>
+
+          <div class="ts-hero__pane" data-hero-pane="campaign">
+            <p class="ts-eyebrow">Compliance Hub • Практика</p>
+            <h1>Полный тест по проверке кампаний</h1>
+            <p class="ts-hero__lead">
+              Получите быстрый срез знаний по вертикалям, PBW, CSAM и подозрительным аккаунтам. Тест включает вопросы из всех модулей.
+            </p>
+            <div class="ts-hero__actions">
+              <button class="ts-btn ts-btn--primary ts-btn--xl" id="full-test-btn">
+                Пройти общий тест
+              </button>
+              <div class="ts-hero__hint">≈ 15–20 минут, 20 вопросов, детальные разборы.</div>
             </div>
-            <div>
-              <div class="ts-hero__stats-number">100+</div>
-              <div class="ts-hero__stats-label">вопросов в базе</div>
+            <div class="ts-hero__stats">
+              <div>
+                <div class="ts-hero__stats-number">12</div>
+                <div class="ts-hero__stats-label">тем покрыто</div>
+              </div>
+              <div>
+                <div class="ts-hero__stats-number">100+</div>
+                <div class="ts-hero__stats-label">вопросов в базе</div>
+              </div>
+              <div>
+                <div class="ts-hero__stats-number">80%</div>
+                <div class="ts-hero__stats-label">проходной балл</div>
+              </div>
             </div>
-            <div>
-              <div class="ts-hero__stats-number">80%</div>
-              <div class="ts-hero__stats-label">проходной балл</div>
+          </div>
+
+          <div class="ts-hero__pane hidden" data-hero-pane="psych">
+            <p class="ts-eyebrow">Mental check • 12 точек</p>
+            <h1>Психологическое состояние</h1>
+            <p class="ts-hero__lead">
+              Тест «12 точек» — анонимный скрининг для модераторов 18+ за последние 4 недели. Один вариант на вопрос.
+            </p>
+            <div class="ts-hero__actions">
+              <button class="ts-btn ts-btn--primary ts-btn--xl" id="psych-test-btn">
+                Пройти скрининг
+              </button>
+              <div class="ts-hero__hint">12 вопросов • максимум 36 баллов • A=0, B=1, C=2, D=3.</div>
+            </div>
+            <div class="ts-hero__stats">
+              <div>
+                <div class="ts-hero__stats-number">12</div>
+                <div class="ts-hero__stats-label">вопросов</div>
+              </div>
+              <div>
+                <div class="ts-hero__stats-number">36</div>
+                <div class="ts-hero__stats-label">максимум баллов</div>
+              </div>
+              <div>
+                <div class="ts-hero__stats-number">3–5</div>
+                <div class="ts-hero__stats-label">минут на скрининг</div>
+              </div>
             </div>
           </div>
         </div>
         <div class="ts-hero__panel">
-          <h3>Что внутри общего теста</h3>
-          <ul>
-            <li>Вертикали и флаги рекламных кампаний.</li>
-            <li>CSAM и другие чувствительные креативы.</li>
-            <li>PBW, жалобы паблишеров и защита площадок.</li>
-            <li>Китайские рекламодатели и подозрительные аккаунты.</li>
-          </ul>
-          <p>После прохождения можно перейти к отдельным темам ниже и закрыть пробелы.</p>
+          <div class="ts-hero__pane" data-hero-pane="campaign">
+            <h3>Что внутри общего теста</h3>
+            <ul>
+              <li>Вертикали и флаги рекламных кампаний.</li>
+              <li>CSAM и другие чувствительные креативы.</li>
+              <li>PBW, жалобы паблишеров и защита площадок.</li>
+              <li>Китайские рекламодатели и подозрительные аккаунты.</li>
+            </ul>
+            <p>После прохождения можно перейти к отдельным темам ниже и закрыть пробелы.</p>
+          </div>
+          <div class="ts-hero__pane hidden" data-hero-pane="psych">
+            <h3>Интерпретация «12 точек»</h3>
+            <ul>
+              <li>0–8: Зелёная зона – держится.</li>
+              <li>9–16: Жёлтая – снизить нагрузку на 30–50 %, добавить спорт и хобби.</li>
+              <li>17–25: Красная – выгорание, перевод на лайтовый контент или отпуск 2–4 недели + психолог.</li>
+              <li>26–36: Чёрная – высокий риск аддикции/компульсий и ДР; снять с жёстких смен, консультация психиатра/сексолога‑травматолога.</li>
+            </ul>
+            <p class="ts-hero__panel-note">Скрининг анонимен и не заменяет консультацию специалиста.</p>
+          </div>
         </div>
       </div>
     </section>

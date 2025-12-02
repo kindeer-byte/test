@@ -61,6 +61,47 @@ const ALLOWED_HTML_ATTRS = {
     a: new Set(["href", "target", "rel"])
 };
 
+function isScaleModule(module) {
+    if (!module) return false;
+    if (module.scoring && module.scoring.type === "scale") return true;
+    return module.mode === "scale";
+}
+
+function computeScaleScore(question, selectedIds) {
+    if (!question || !Array.isArray(question.options)) return 0;
+    let score = 0;
+    selectedIds.forEach((id) => {
+        const opt = question.options.find((o) => o.id === id);
+        if (opt && typeof opt.score === "number") {
+            score += opt.score;
+        }
+    });
+    return score;
+}
+
+function getModuleMaxScore(module) {
+    if (!module || !Array.isArray(module.questions)) return 0;
+    if (module.scoring && typeof module.scoring.maxScore === "number") {
+        return module.scoring.maxScore;
+    }
+    return module.questions.reduce((sum, q) => {
+        if (!q || !Array.isArray(q.options)) return sum;
+        const maxScore = q.options.reduce((max, opt) => {
+            const val = typeof opt.score === "number" ? opt.score : 0;
+            return val > max ? val : max;
+        }, 0);
+        return sum + maxScore;
+    }, 0);
+}
+
+function resolveScoreZone(score, scoring) {
+    if (!scoring || !Array.isArray(scoring.zones)) return null;
+    return scoring.zones.find((zone) => {
+        if (typeof zone.min !== "number" || typeof zone.max !== "number") return false;
+        return score >= zone.min && score <= zone.max;
+    }) || null;
+}
+
 let currentModule = null;
 let currentQuestionIndex = 0;
 let userAnswers = {};
@@ -911,8 +952,14 @@ function startModule(module, options = {}) {
 
     const resultContainer = document.getElementById("result-container");
     const quizContainer = document.getElementById("quiz-container");
+    const checkBtn = document.getElementById("check-btn");
     if (resultContainer) resultContainer.classList.add("hidden");
     if (quizContainer) quizContainer.classList.remove("hidden");
+    if (checkBtn) {
+        checkBtn.textContent = isScaleModule(preparedModule)
+            ? "Сохранить ответ"
+            : "Проверить ответ";
+    }
 
     const titleEl = document.getElementById("quiz-title");
     const breadcrumbModule = document.getElementById("quiz-breadcrumb-module");
@@ -977,6 +1024,7 @@ function renderQuestion() {
     const questionContainer = document.getElementById("question-container");
     const progress = document.getElementById("quiz-progress");
     const progressInner = document.getElementById("quiz-progress-inner");
+    const isScale = isScaleModule(currentModule);
 
     if (!q || !questionContainer) {
         return;
@@ -1052,7 +1100,7 @@ function renderQuestion() {
     const isMulti = q.type === "multi" || q.type === "image_multi";
     const inputType = isMulti ? "checkbox" : "radio";
     const isChecked = checkedQuestions.has(q.id);
-    const isCorrect = computeQuestionCorrect(q, Array.from(selected));
+    const isCorrect = isScale ? true : computeQuestionCorrect(q, Array.from(selected));
 
     const optionsWrapper = document.createElement("div");
     optionsWrapper.className = "options";
@@ -1060,7 +1108,7 @@ function renderQuestion() {
     q.options.forEach((opt) => {
         const label = document.createElement("label");
         let optionClass = "option";
-        if (isChecked) {
+        if (isChecked && !isScale) {
             if (opt.correct) {
                 optionClass += " correct";
             } else if (selected.has(opt.id) && !opt.correct) {
@@ -1074,7 +1122,7 @@ function renderQuestion() {
         input.name = "q_" + q.id;
         input.value = opt.id;
         input.checked = selected.has(opt.id);
-        input.disabled = isChecked;
+        input.disabled = isChecked && !isScale;
         label.appendChild(input);
 
         const textSpan = document.createElement("span");
@@ -1089,13 +1137,16 @@ function renderQuestion() {
     const inputs = optionsWrapper.querySelectorAll("input[type=radio], input[type=checkbox]");
     inputs.forEach((input) => {
         input.addEventListener("change", () => {
-            if (isChecked) return;
+            if (isChecked && !isScale) return;
             handleOptionChange(q, input, isMulti);
+            if (isScale && userAnswers[q.id] && userAnswers[q.id].size > 0) {
+                checkedQuestions.add(q.id);
+            }
             updateNavigationButtons();
         });
     });
 
-    if (isChecked) {
+    if (isChecked && !isScale) {
         const feedbackClass = isCorrect ? "feedback-correct" : "feedback-incorrect";
         const feedbackTitle = isCorrect ? "Правильно" : "Неправильно";
         const feedbackIcon = isCorrect ? "✅" : "❌";
@@ -1155,6 +1206,13 @@ function handleOptionChange(question, inputElement, isMulti) {
         selected.clear();
         if (inputElement.checked) {
             selected.add(inputElement.value);
+        }
+    }
+    if (isScaleModule(currentModule)) {
+        if (selected.size > 0) {
+            checkedQuestions.add(qid);
+        } else {
+            checkedQuestions.delete(qid);
         }
     }
     persistProgress();
@@ -1230,7 +1288,10 @@ function showResults() {
     }
 
     const questions = currentModule.questions;
+    const isScale = isScaleModule(currentModule);
     let correctCount = 0;
+    let scaleScore = 0;
+    const maxScore = isScale ? getModuleMaxScore(currentModule) : null;
 
     detailsEl.textContent = "";
 
@@ -1248,11 +1309,20 @@ function showResults() {
     questions.forEach((q, index) => {
         const selectedSet = userAnswers[q.id] || new Set();
         const selectedIds = Array.from(selectedSet);
-        const isCorrect = computeQuestionCorrect(q, selectedIds);
-        if (isCorrect) correctCount += 1;
+        const questionScore = isScale ? computeScaleScore(q, selectedIds) : 0;
+        const isCorrect = isScale ? true : computeQuestionCorrect(q, selectedIds);
+        if (isScale) {
+            scaleScore += questionScore;
+        } else if (isCorrect) {
+            correctCount += 1;
+        }
 
         const card = document.createElement("article");
-        card.className = "result-question-card " + (isCorrect ? "is-correct" : "is-incorrect");
+        const cardClasses = ["result-question-card"];
+        if (!isScale) {
+            cardClasses.push(isCorrect ? "is-correct" : "is-incorrect");
+        }
+        card.className = cardClasses.join(" ");
 
         const titleRow = document.createElement("div");
         titleRow.className = "result-question-card__title-row";
@@ -1264,24 +1334,41 @@ function showResults() {
 
         const status = document.createElement("span");
         status.className =
-            "result-question-card__status " + (isCorrect ? "is-correct" : "is-incorrect");
-        status.textContent = isCorrect ? "Ответ верный" : "Ответ неверный";
+            "result-question-card__status" +
+            (isScale ? "" : isCorrect ? " is-correct" : " is-incorrect");
+        status.textContent = isScale ? "Ответ сохранён" : isCorrect ? "Ответ верный" : "Ответ неверный";
         titleRow.appendChild(status);
 
         card.appendChild(titleRow);
 
-        const correctOpts = q.options.filter(o => o.correct).map(o => o.text);
-        const userOpts = q.options.filter(o => selectedIds.includes(o.id)).map(o => o.text);
+        const userOpts = Array.isArray(q.options)
+            ? q.options.filter(o => selectedIds.includes(o.id)).map(o => o.text)
+            : [];
 
-        card.appendChild(
-            createAnswerRow(
-                "Правильные варианты",
-                correctOpts.length ? correctOpts.join("; ") : "нет явного правильного ответа"
-            )
-        );
+        if (!isScale) {
+            const correctOpts = q.options.filter(o => o.correct).map(o => o.text);
+            card.appendChild(
+                createAnswerRow(
+                    "Правильные варианты",
+                    correctOpts.length ? correctOpts.join("; ") : "нет явного правильного ответа"
+                )
+            );
+        }
         card.appendChild(
             createAnswerRow("Ваш ответ", userOpts.length ? userOpts.join("; ") : "ничего не выбрано")
         );
+        if (isScale) {
+            const questionMaxScore = Array.isArray(q.options)
+                ? q.options.reduce((max, opt) => {
+                    const val = typeof opt.score === "number" ? opt.score : 0;
+                    return val > max ? val : max;
+                }, 0)
+                : 0;
+            const scoreLabel = questionMaxScore
+                ? questionScore + " из " + questionMaxScore
+                : String(questionScore);
+            card.appendChild(createAnswerRow("Баллы за ответ", scoreLabel));
+        }
 
         if (q.category || q.difficulty) {
             const meta = document.createElement("div");
@@ -1318,6 +1405,59 @@ function showResults() {
 
         detailsEl.appendChild(card);
     });
+
+    if (isScale) {
+        const scoring = currentModule.scoring || {};
+        const zone = resolveScoreZone(scaleScore, scoring);
+        persistModuleResult(currentModule.id, true);
+
+        summaryEl.textContent = "";
+        const statusChip = document.createElement("div");
+        statusChip.className = "result-summary__status is-survey";
+        statusChip.textContent = "Скрининг пройден";
+        summaryEl.appendChild(statusChip);
+
+        const infoLine = document.createElement("div");
+        infoLine.className = "result-summary__line";
+        infoLine.textContent =
+            "Сумма баллов: " +
+            scaleScore +
+            " из " +
+            (maxScore != null ? maxScore : "—");
+        summaryEl.appendChild(infoLine);
+
+        const stats = document.createElement("div");
+        stats.className = "result-summary__stats";
+
+        const statScore = document.createElement("div");
+        statScore.textContent = "Баллы";
+        const scoreValue = document.createElement("span");
+        scoreValue.className = "result-summary__statvalue";
+        scoreValue.textContent = String(scaleScore);
+        statScore.appendChild(scoreValue);
+        stats.appendChild(statScore);
+
+        const statMax = document.createElement("div");
+        statMax.textContent = "Максимум";
+        const maxValue = document.createElement("span");
+        maxValue.className = "result-summary__statvalue";
+        maxValue.textContent = maxScore != null ? String(maxScore) : "—";
+        statMax.appendChild(maxValue);
+        stats.appendChild(statMax);
+
+        if (zone && zone.label) {
+            const zoneStat = document.createElement("div");
+            zoneStat.textContent = "Зона риска";
+            const zoneValue = document.createElement("span");
+            zoneValue.className = "result-summary__statvalue";
+            zoneValue.textContent = zone.label;
+            zoneStat.appendChild(zoneValue);
+            stats.appendChild(zoneStat);
+        }
+
+        summaryEl.appendChild(stats);
+        return;
+    }
 
     const percent = Math.round((correctCount / questions.length) * 100);
     const passed = percent >= currentModule.passPercent;

@@ -43,10 +43,48 @@
     color: var(--text-muted);
   }
   
-.ts-hero {
+  .ts-hero {
     padding: 48px 0 24px;
   }
   
+  .ts-hero__tabs {
+    display: flex;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid var(--card-border);
+    background: var(--muted-bg);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .ts-hero__tab {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .ts-hero__tab:not(.is-active):hover {
+    background: rgba(37, 99, 235, 0.08);
+  }
+
+  .ts-hero__tab.is-active {
+    background: var(--card-bg);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.12);
+  }
+
+  .ts-hero__pane.hidden {
+    display: none;
+  }
+
   .ts-hero__grid {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
@@ -108,6 +146,11 @@
   }
   
   .ts-hero__hint {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .ts-hero__panel-note {
     font-size: 13px;
     color: var(--text-muted);
   }
